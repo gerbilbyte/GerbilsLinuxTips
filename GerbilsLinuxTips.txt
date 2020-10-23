@@ -1,0 +1,828 @@
+Below are all the tweets I posted with the #GerbilsLinuxTip tag.
+They are not in the order posted, and don't incllude screenshots of the snippets being used so I do apologise about that.
+If I get time in the future (ie if I can be bothered) I will add links to the original tweets.
+
+Have fun peeps! :)
+
+-gerbil
+
+==============================================================================
+
+         Want to remove duplicate lines from a file without changing the order?
+         Simply run:
+          awk '!_[$0]++' file.txt
+         This will keep the FIRST line of each duplicate.
+
+         Want JUST those that are duplicates? Run:
+          awk '_[$0]++' file.txt
+         This will return ALL duplicates.
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         You can also use single words (with default delimeter) as keys instead of full lines, so running:
+          awk '!_[$1]++' file.txt
+         would only check the "uniqueness" of the first word of each line, $2 for the second word etc.
+         And you can combine keys:
+          awk '!_[$1$5]++' file.txt
+
+         --------------
+
+         Explanation:
+         The _ is an array name, this could be anything.
+         $0 means "full line" in awk, this gets used as a key for the array.
+         ! negates the test of whether _[$0] exists, if it doesn't then it gets printed. Or vice-versa without !.
+         ++ increments the array index (I think).
+
+         --------------
+
+         So each line in the file is checked before being printed, depending on whether the ! (negation) is used or not.
+
+         This is one of my favourite of all times linux one-liners, and I use this all the time.
+         I've described this best I could, if something is amiss please let me know. 
+
+==============================================================================
+
+         Today's and tomorrow's tips tie nicely together.
+
+         They are quite well known but still useful.
+
+         Want to run the last command again and you don't have the nifty "up-arrow" set up to call the last command?
+         Simply enter:
+          !!
+         That will show and run the last command.
+         #GerbilsLinuxTip
+
+         --------------
+
+         This is also great to use for those times when you have forgotten to prefix the command with sudo:
+          sudo !!
+         You can also add a parameter:
+          !! param
+
+         You can also change the original command using either of the following instead:
+          !!:s/oldstring/newstring/
+          ^oldstring^newstring^
+          
+==============================================================================
+
+         Want to run a command in "secret" so that it doesn't get put in the history file?
+
+         Simply put at least one space character before your command.
+
+         Good for creators of VMs who want to distribute a "clean" VM! 
+
+         This tip ties in nicely with yesterday's !! tip.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Have you just changed from one folder to another, but need to get back to the first?
+         Simply type:
+          cd -
+
+         Using the - parameter with cd will take you to the last folder visited.
+
+         This is handy if you need to swap between two "deep" locations within a filesystem.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want to copy, rename etc. a file with minimum fuss?
+         Use parameter expansion!
+         Instead of typing
+          cp file1.txt file2.txt
+         simply roll the parameters into one using {string1,string2}:
+          cp file{1,2}.txt
+          
+         --------------
+
+         Explanation:
+         Linux parameter expansion is useful with these types of commands as it builds up a multiple strings based on the pattern you tell it. So for example:
+         a{1,2,3}b will produce "a1b a2b a3b".
+         Leaving an element blank:
+         file.txt{,_BAK} will produce "file.txt file.txt_BAK"
+
+         --------------
+
+         Also, you can use a numeric range as expansion, so:
+         a{1..5}b will produce "a1b a2b a3b a4b a5b"
+         This works really well in shell scripts.
+
+==============================================================================
+
+         Want to rename ALL files in a folder in one go?
+         Simply use a for-loop one-liner with parameter expansion:
+
+          for i in `ls -1`; do mv ${i} ${i/BAD/GOOD};done
+
+         This will replace occurrences of BAD to GOOD within filenames.
+
+         Swap the mv command to whatever you need.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Have you written a script that doesn't seem to work?
+         Debug it by adding:
+          set -vx
+         as the first line after the interpreter line.
+         This will print out every line WITH variables populated so you can see what is actually being called.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want just the filename from a path?
+         Simply use:
+          basename /path/to/file.txt
+
+         Want to split a filename into JUST the file and extension?
+
+          fullfile="file.txt"
+          filename=${fullfile%%.*}
+          fileext=${fullfile#*.}
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         Explanation:
+         This is fairly tricky to explain, especially  after having had no sleep. 
+         I'll use characters to help me explain. Hope this will make sense, if not, I'm sorry.
+         We create a variable to hold a string:
+          A="abcd-efgh-ijkl"
+
+         --------------
+
+         Basically, # means to pattern match dealing with the BEGINNING of the expansion, and % means to pattern match dealing with the the TRAILING section of the expansion.
+         A single # or % is less greedy, meaning that it will match the shortest pattern, whereas ## or %% is greedy.
+
+         --------------
+
+         Using this we can use, for example, ${variable%%word}
+         So, ${A%%-*} would result with "abcd".
+         Why? -* means expand the variable A and delete everything AFTER the - that makes the BIGGEST (greedy) match(%%). 
+
+         --------------
+
+         And ${A#*-} would result in "efgh-ijkl".
+         Why? *- means expand the variable A and delete everything BEFORE the - that makes the SMALLEST (less greedy) match(#).
+
+         I really hope that makes sense. 
+
+         That was really hard to explain and I really want to back to bed now.
+
+==============================================================================
+
+         Want to cycle through different character (or word) combinations, for example, to create password lists?
+
+         Again, user parameter expansion!
+
+         Simply write a for loop to cycle through each set:
+          for i in `echo {admin,user,guest}{A,B}{1..3}`;do echo ${i};done
+
+         #GerbilsLinuxTip
+
+         --------------
+         
+         Explanation:
+         Linux parameter expansion is useful with these types of commands as it builds up a multiple strings based on the pattern you tell it. So for example:
+           a{1,2,3}b will produce "a1b a2b a3b".
+         By combining multiple sets of {} we can build up complex strings and the
+
+         --------------
+
+         shell will cycle through them all.
+         So {a,b}{1,2} could produce "a1 a2 b1 b2"
+         This would be handy if you wanted to create a password list using a handful of small variable sets with minimum effort.
+         If you are interested in password lists then there are better tools available! 😉
+
+==============================================================================
+
+         Need a full list of word combinations?
+
+         Simply nest loops:
+          for user in {gerbil,mark,admin}; do for pass in {password,123qwe,letmein} ; do echo "Trying ${user} with ${pass}"; done; done
+
+         This will cycle through all combinations.
+         Handy for testing passwords.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want a command or a script to run every x amount of seconds without faffing around with cron?
+         Simply use watch:
+          watch -n 30 script.sh  #watch will run script.sh every 30 seconds
+
+         I think this is a general linux command, I can't say whether this one is in every distro. Let me know if you know.
+         Cheers.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want to time how long a command or a script takes to run?
+         Simply prepend with time:
+          time script.sh
+
+         The output displays the real time, the user CPU time and the system CPU time it has taken from invocation to completion of the command or script.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want a command or script to run in the background so you can use the same terminal? Simply append & to the command:
+          ./script.sh &
+          
+         You can return to it by typing:
+          fg
+
+         Useful for when you want to kill the script using ^c without faffing with ps and kill etc.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Forgotten to use sudo?
+          sudo !!
+
+         You can also add a parameter:
+          !! param
+
+         You can also change the original command using either of the following instead:
+          !!:s/oldstring/newstring/
+          ^oldstring^newstring^
+          
+         #GerbilsLinuxTip
+ 
+==============================================================================
+
+         Want to get information on a file such as date created, accessed and modified?
+
+         Simply run:
+          stat file.txt
+          
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         So you want to exit vim?
+         Simply do:
+          <esc> :q
+
+         If you want to write the file before exitting do:
+          <esc> :wq
+
+         If during editing a file you have accidentally pressed ctrl-s to save the file and vim has "frozen", press crtl-q to get back to normal.
+
+         #GerbilsLinuxTip
+
+         Also, 
+
+         --------------
+
+         depending on the version of vim, one of the following are tried and tested ways of exitting:
+         • <esc> then Up, Up, Down, Down, Left, Right, Left, Right, B, A.
+         • Open new terminal and enter: sudo shutdown -h now
+         • Let laptop power drain
+         • Set laptop on fire
+         • Use Windows
+         • <esc> then type IDKFA
+         • Phone a friend
+         • Throw laptop through window
+         • Open new terminal and enter: sudo rm -rf /
+         • Remove hard drive
+         • Open new terminal and enter: killall vi
+         • Google "how do I exit vim"
+         • Change your career
+         • Choose a family
+         • Choose a fucking big television
+         • Choose life
+         • <esc> then type XYZZY then press Shift-Enter and Enter
+         • Put the laptop in the bath
+         • Use laptop as a step to reach a shelf that you are about an inch too short to reach
+         • Look for answer on stackexchange.com
+         • Throw laptop over your house
+         • Lend laptop to my mum who will manage to install malware to kill the system
+         • and install more toolbars too
+         • Degauss the hard drive
+         • Take laptop past the Curie point
+         • Take laptop skinnydipping
+         • Install a new build
+         • Remove memory modules
+         • Kick sand in its face
+         • Use gedit in future (via networking if needs be)
+         
+==============================================================================
+         
+         Want to output multiple files side-by-side, such as to merge results or other data?
+
+         Simply use paste:
+          paste file1.txt file2.txt file3.txt ....
+
+         This will combine each line from each file separated by tab.
+         If you don't want tab as separator, use the -d option.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want to see all the global variables set up for your session such as PATH, USERNAME, SHELL etc.
+         Even PWD and OLDPWD (remember the cd - command)?
+         Simply type:
+          env
+          
+         This will show you all sorts of data about your session.
+
+         No screenshot for this tip! :P
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Sick of creating a folder in bash and then running an extra command to cd into it? Simply roll the commands together as a single function:
+          mkcd() { mkdir -p $1 && cd $1; }
+
+         Drop this into your ~/.bashrc file to be persistent for every shell you open.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Need to remotely connect to a box and run a script that will take hours but  worried that a failed connection will terminate the script halfway through? Use screen to create a session:
+          screen -S gerbil
+
+         The above command will create a session called gerbil.
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         Having a session on a remote machine will keep things running until it ends. Sessions can be created, ended, and the user can join and leave sessions as and when.
+         The following are my most used commands with screens:
+
+         --------------
+
+         To starts a new session called "gerbil":
+         screen -S gerbil
+
+         To reattach to gerbil:
+          screen -r gerbil
+
+         To list active sessions:
+          screen -ls
+
+         Within a screen
+         Make a new window:
+          ctrl + a then c
+
+         Detach from window (but it keep running):
+          ctrl + a then d
+
+         Kill window:
+          ctrl + d
+
+         --------------
+
+         I'm not too sure whether screen is a part of the base operating system or whether it needs to be installed.
+         Also keep the following in mind:
+         It runs on the host. If the host dies, so does the screen sessions (if anybody knows different then let me know).
+         Be careful with ctrl+d!!!
+
+==============================================================================
+
+         Want to record your terminal outputs as you work, and replay the "movie" at a later time? Simply use script and scriptreplay:
+          script gerbil --timing=gerbiltimings
+          scriptreplay gerbil --timing gerbiltimings
+
+         Handy for creating Linux demos for presentations.
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         script records what is shown on screen. It DOES NOT execute the commands used in the script when you replay it with scriptreplay.
+         Also, you can speed up/slow down the playback when using scriptreplay with the -d command. The higher the number, the faster it will replay.
+
+==============================================================================
+
+         Need a hash of a file? Simply use a hashing tool such as md5sum:
+          md5sum file.txt
+
+         This will return an MD5 hash.
+
+         You can also pipe to these tools:
+          printf "gerbil" | md5sum
+
+         Other hashing tools are:
+         sha1sum
+         sha224sum
+         sha256sum
+         sha384sum
+         sha512sum
+         shasum
+         cksum
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Do you do a lot of scripting that involves hashing by piping to tools such md5sum, sha512sum etc?
+
+         If so, DO NOT use echo, instead use printf:
+          printf "gerbil" | md5sum
+          printf ${variable} | md5sum
+
+         echo adds a newline character to the end of the data.
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         Addendum:
+
+         Yesterday this info was inadvertently "leaked" by @khae in which he revealed you CAN use echo.
+         I'm not sure if I already knew this or not, I honestly can't remember but kudos to @khae for the following:
+         Use -n with echo to strip carriage returns etc:
+          echo -n "gerbil"
+
+==============================================================================
+
+         Need to swap characters for other characters?
+         Use tr:
+          tr set1 set2
+         Each letter in set1 will be swapped for the corresponding letter in set2.
+
+         Want a rot13 de/encoder?
+          tr a-z n-za-m
+         This will swap first half of alphabet with second half in turn.
+
+         #GerbilsLinuxTip 
+
+         --------------
+
+         Want to remove characters? Use one set with the -d character:
+          tr -d set
+
+         tr can be piped to or run on its own. If you run tr on its own without input you will have an interactive session where the rules are used against what you type line by line.
+
+==============================================================================
+
+         Want to empty a file without deleting it?
+
+         Simply redirect nothing to a file:
+          > /path/to/file.txt
+
+         Good for emptying log files and important files, especially if used by the root user. Try it, its fun!
+
+         #GerbilsLinuxTip 
+
+==============================================================================
+
+         Friday fun!
+
+         In a terminal run one of the following:
+          apt moo
+          apt-get moo
+
+         You're welcome! :)
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Friday fun!
+
+         Next time you run nmap use the -oS - command within your parameters:
+          nmap -oS - 127.0.0.1
+
+         OK, I know it's not purely a linux tip, but you're welcome! :)
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want a command that will send a program's output to the screen AND to a file at the same time? Piping to tee will do that:
+          echo "gerbil" | tee file.txt
+
+         Use -a to append to a file that already exists.
+
+         Useful for when you want to log output to a file.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want to view a file or output of a tool with a limit on the number of characters per line? 
+         Simply use fold with the -w option:
+          fold -w 20 file.txt
+
+         This will split the output into lines of 20 characters long.
+
+         Useful if a tool's output trails off the terminal.
+
+         #GerbilsLinuxTip
+         
+==============================================================================
+
+         Want a string made up of 16 printable random characters?
+          cat /dev/urandom | tr -dc '!-~' | fold -w 16 | head -1
+
+         Want 3 sets of 32 random hex characters?
+          cat /dev/urandom | tr -dc 'a-fA-F0-9' | fold -w 32 | head -3
+          
+         Handy for generating passwords etc.
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         Explanation.
+
+         cat /dev/urandom 
+         This part of the command "reads" entropy. You may ask "why not use /dev/random as it is more truly random"? The reason is is that once the entropy pool has been exhausted with random then it halts until more is generated. urandom doesn't halt, 
+
+         --------------
+
+         once entropy has been exhausted then it falls back to using a pseudo-random number generator.
+
+         tr -dc '!-~' 
+         This is the part that allows for character sets. !-~ means "ascii character range between ! and ~" which is a full set of printable range excluding spaces. 
+
+         --------------
+
+         You can put anything here, and combine sets:
+          'ABC_=^&-' : will only chose from them characters
+          'A-Z' : will only choose uppercase letters
+          '0-9' : will only choose numbers
+          'ABC1-5' : will only choose uppercase A,B or C and numbers 1 to 5. The list can go on.
+          
+          
+         --------------
+
+         fold -w 16
+         This is the part of the command that specifies the length of the string you want.
+
+         head -1
+         This specifies how many strings you want, and each string will be printed on a separate line. 
+
+==============================================================================
+
+         Want to create a folder which has several subfolders with just the one command instead of creating each in turn?
+         Simply use the -p command with mkdir:
+          mkdir -p folder/with/several/subfolders
+
+         The -p option creates parent folders if they don't exist.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Do you have a file of hex and you want to prepend each "byte" with a \x for whatever nefarious reason?
+         Use sed:
+          sed 's/../\\x&/g'
+
+         Want to put a , AFTER each byte?
+          sed 's/../&,/g'
+
+         Want a - after every 10th character of each line?
+          sed 's/^\(.\{10\}\)/\1-/'
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         Explanation:
+
+         sed is a Stream EDitor, it modified what goes into is. I'll explain the above examples:
+
+         's/../\\x&/g'
+         The s means substitute. This works in the form s/INPUT/OUTPUT/
+         So sed looks for whatever matches INPUT and swap it for OUTPUT. In the case above .. means "look 
+
+         --------------
+
+         for ANY two characters".
+         \\x& means prepend whatever is found in INPUT with \x (it is written as \\x as \ needs to be escaped to be printed). If you wanted \x to appear AFTER ever 2 characters, then write as &\\x as in the second example where I have placed a , instead of a \x.
+
+         --------------
+
+         's/^\(.\{10\}\)/\1-/'
+         The tricky one that isn't really tricky. Lets make this look more understandable by removing the escape chars:
+         's/^(.{8})/\1-/'
+         ^ means start at beginning of the line
+         \(\) whatever gets matched in these can be printed in the OUTPUT by using \1. A second set
+
+         --------------
+
+         of \(\) would be referred to as \2 and so on.
+         . is any character as you have seen, but is is appended by /{10/} which means "match EXACTLY 10 characters"
+         So the INPUT for this is match the FIRST 10 characters, print them followed by a -, then print the rest of the line.
+
+         Good eh?
+         
+         --------------
+         
+         Addendum:
+         I forgot about the /g on the end of the sed command. This means "global". If you put a g here it will continue to run the rules along the stream, otherwise it would stop after the first match.
+         
+==============================================================================      
+
+         Want to split a file into several smaller files? You can do this with split.
+         2 lines each file:
+          split -d -l 5 file.txt output_
+
+         into 10k files:
+          split -d -b 10k file.txt output_
+
+         into 7 equal siz=ed files:
+          split -d -n 7 file.txt output_
+
+         #GerbilsLinuxTip
+         
+==============================================================================
+
+         Want to print/use a variable but with its case changed?
+         Simply use the ^ and , switches after the variable name:
+          ${var^}
+         ^ =first char uppercase
+         ^^=all chars uppercase
+         Change ^ to , for the same in lowercase.
+
+         This does NOT change the contents of the variable. 
+
+         #GerbilsLinuxTip
+         
+==============================================================================
+
+         Want to strip html tags from a file? sed can do that:
+          sed 's/<[^<>]*>//g' file.htm
+          
+         Useful for when you want to strip html tags from a file! :D
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         How does this work?
+         The ^ within a [] means 'inverse', so match anything BUT what follows.
+         * means "0 or more" of the preceding.
+         So sed is finding patterns within <> brackets that have ANY characters inside them, EXCEPT <> brackets, then deletes them!
+
+         Pretty simple eh? ;)
+
+==============================================================================
+
+         Want to put every x amount of lines of a file into one line? Piping through paste can do this:
+          cat file | paste -d"\t" - - -
+
+         The above command will grab every 3 lines and print them on a single line separated by a tab.
+
+         Useful for files of database records.
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         For each - that you see in the command represents a line that will be added to the output line. No more no less.
+         NOTE: I've used database records as an example where a field lies on a separate line. In real life, these type of records may contain a different number of lines.
+
+==============================================================================
+
+         Let's play with characters.
+         Get ASCII value of a character:
+          printf '%d' "'A"
+
+         Get the character of an ASCII value:
+          printf "\\$(printf '%03o' "65")"
+
+         What about unicode?
+
+         Get value of unicode:
+          printf "%x" "'𝕭"
+
+         Get unicode of value:
+          echo -e "\U1d56d"
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want a very basic XOR file enc/decryptor?
+
+         key="SECRET";i=0; od -vAn -tx1 -w1 FILE.TXT | while read hex; do printf "\\$(printf '%03o' $(($(printf '%d' "'${key:$i%${#key}:1}")^$((0x${hex})))))";((i++));done
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         Explanation.
+
+         This is a very simple script squashed into one line. Let me break it down:
+          key="SECRET"
+          i=0
+         These two set up key and i (incrementor) variables. Ideally, at the end of the script these should be unset using:
+          unset key i
+
+         --------------
+
+          od -vAn -tx1 -w1 FILE.TXT
+
+         This command produces an octal dump of the file one byte at a time:
+          -v = outputs duplicates
+          -An = don't print offset address (Address:no)
+          -tx1 = output type of 1 hex character per integer
+          -w1 = output width of 1 bytes per line
+
+         --------------
+
+          while read hex; do ...stuff... done
+         This is the while loop that gets EVERY byte of the file and works on each one in turn.
+
+         What is inside this loop is the magic of the XOR operation:
+          printf "\\$(printf '%03o' ...sums...)";
+         This prints the result of ...sums... as a byte.
+
+         --------------
+         
+         Lastly, the sum. I'll break this is 2 parts.
+         Firstly:
+          $(printf '%d' "'${key:$i%${#key}:1}")
+         This will cycle through each character in the key and print the VALUE of each. How?
+         Well:
+          ${key} is the variabe we are working with
+          :$i%${#key} is ${i} modulus (%) length of key ${#key}
+          
+         --------------
+         
+         Secondly:
+          ^$((0x${hex}))
+
+         This will grab each hexadecimal byte of the file and XOR (^) it with the preceding value (key character).
+         And that's the magic.
+
+         Lastly is the $((i++)). This simply increments after each byte has been dealt with so that the key can by "cycled".
+
+= = = = = = = = = = = = = =
+
+         REVISIT:
+         https://twitter.com/M_C_Stott/status/1271329866588188672 [previous XOR tweet]
+         Use any characters instead of alphnumerics.
+         key=$( echo -e "\x20\x01\x20\x02\x20\x03" );i=0; od -vAn -tx1 -w1 file.txt | while read hex; do printf "\\$(printf '%03o' $(($(printf '%d' "'${key:$i%${#key}:1}")^$((0x${hex})))))";((i++));done
+
+==============================================================================
+
+         Want to work on a given string character-by-character in bash? No problem:
+          str="gerbil"; for ((i=0;i<${#str};i++)); do  echo "${str:${i}:1}"; done
+
+         Useful for working with single characters of a string. Or printing down the side of a terminal like the attached.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         Want a list of hosts and ports from an nmap "grepable" output file (created with -oG)? Simply run:
+          grep -i ^Host.*Ports grepable.txt | grep -o ' [0-9.]\{1,\}' | awk '{if($1~/\./){host=$1}else{printf("%s:%s\n",host,$1)}}'
+
+         This will print a list of host:port
+
+         #GerbilsLinuxTip
+
+         --------------
+
+         Caveat:
+         Let me just add that this hasn't been extensively tested, but it works for me on a single scan of 127.0.0.1 and a "forged" host line added to the output file.
+
+         It was quickly written as a solution for @TimmehWimmy
+
+==============================================================================
+
+         Want to put text in a file and hide it from (some) tools such as cat, more etc?
+         Simply end the line you want to hide with a ^M symbol (ctrl-V ctrl-M) followed by the line you want to paste over it (but longer, or use spaces).
+
+         Use vi to read.
+
+         Great for CTFs.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
+         So you want to cycle through a sequence of numbers but want them to be equally sized (ie. prefixed with one or more zeros).
+         Simply use seq with -w:
+          seq -w 1 5000
+
+         The -w works out the width and pads with zeros.
+
+         Useful for line numbers, filenames, other stuff.
+
+         #GerbilsLinuxTip
+
+==============================================================================
+
